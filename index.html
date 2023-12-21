@@ -142,54 +142,82 @@
       return selectedCharacters.includes(char1) && selectedCharacters.includes(char2);
     }
 
-    function displayCharacterStats() {
-      const selectedCharacter = document.getElementById('characterSelector').value;
-      const characterStatsList = document.getElementById('characterStatsList');
+    function calculatePercentages() {
+  const percentages = {};
+  const totalChoices = selectedCharacters.length;
 
-      if (selectedCharacter) {
-        characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} chosen with: ${getChosenWith(selectedCharacter).join(', ')}</li>`;
-      } else {
-        updateCharacterStatistics();
-      }
+  for (const character in characterStatistics) {
+    if (characterStatistics.hasOwnProperty(character)) {
+      const chosenWithCount = getChosenWith(character).length;
+      percentages[character] = chosenWithCount / totalChoices * 100 || 0;
     }
+  }
+
+  return percentages;
+}
+
+function displayCharacterStats() {
+  const selectedCharacter = document.getElementById('characterSelector').value;
+  const characterStatsList = document.getElementById('characterStatsList');
+
+  if (selectedCharacter) {
+    const percentages = calculatePercentages();
+    const percentage = percentages[selectedCharacter].toFixed(2);
+
+    characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} chosen with: ${getChosenWith(selectedCharacter).join(', ')} (${percentage}% of total choices)</li>`;
+  } else {
+    characterStatsList.innerHTML = '';
+    updateCharacterStatistics();
+  }
+}
+
 
     function saveChoices() {
-      const apiUrl = 'https://api.github.com/repos/WhoWouldYouChoose/whowouldyouchoose.github.com/contents/choices.json';
-      const token = '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';
-    
-      fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/vnd.github.v3+json',
-        },
-      })
-      .then(response => response.json())
-      .then(data => {
-        const existingChoices = data.content ? JSON.parse(atob(data.content)) : [];
-        const updatedChoices = [...existingChoices, ...selectedCharacters];
-        const jsonData = JSON.stringify(updatedChoices);
-    
-        fetch(apiUrl, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/vnd.github.v3+json',
-          },
-          body: JSON.stringify({
-            message: 'Update character choices',
-            content: btoa(jsonData),
-            sha: data.sha,
-            branch: 'gh-pages-no-rebuild',
-          }),
-        })
-        .then(response => response.json())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error:', error));
-      })
-      .catch(error => console.error('Error:', error));
+  const apiUrl = 'https://api.github.com/repos/WhoWouldYouChoose/whowouldyouchoose.github.com/contents/choices.json';
+  const token = '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';
+
+  fetch(apiUrl, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github.v3+json',
+    },
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.statusText}`);
     }
+    return response.json();
+  })
+  .then(data => {
+    const existingChoices = data.content ? JSON.parse(atob(data.content)) : [];
+    const updatedChoices = [...existingChoices, ...selectedCharacters.map(character => ({ name: character }))];
+    const jsonData = JSON.stringify({ characters: updatedChoices });
+
+    return fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github.v3+json',
+      },
+      body: JSON.stringify({
+        message: 'Update character choices',
+        content: btoa(jsonData),
+        sha: data.sha,
+        branch: 'gh-pages-no-rebuild',
+      }),
+    });
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.statusText}`);
+    }
+    return response.json();
+  })
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+}
 
 
     window.onload = createCharacterBoxes;
