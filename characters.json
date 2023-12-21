@@ -15,5 +15,4 @@
     {"name": "Isabella", "gender": "female", "age": 27, "job": "software developer", "attribute": "innovative"},
     {"name": "Ethan", "gender": "male", "age": 33, "job": "teacher", "attribute": "patient"}
   ]
-  ]
 }
