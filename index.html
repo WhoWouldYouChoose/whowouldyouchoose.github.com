@@ -175,41 +175,45 @@
     }
 
     function saveChoices() {
-      const apiUrl = 'https://api.github.com/repos/WhoWouldYouChoose/whowouldyouchoose.github.com/contents/choices.json';
-      const token = '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';
+  const apiUrl = 'https://api.github.com/repos/WhoWouldYouChoose/whowouldyouchoose.github.com/contents/choices.json';
+  const token = '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';
 
-      fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/vnd.github.v3+json',
-        },
-      })
-      .then(response => response.json())
-      .then(data => {
-        const existingChoices = data.content ? JSON.parse(atob(data.content)) : { characters: [] };
-        const updatedChoices = [...existingChoices.characters, ...selectedCharacters.map(character => ({ name: character }))];
-        const jsonData = JSON.stringify({ characters: updatedChoices });
+  fetch(apiUrl, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github.v3+json',
+    },
+  })
+  .then(response => response.json())
+  .then(data => {
+    const existingChoices = data.content ? JSON.parse(atob(data.content)) : { characters: [] };
+    const updatedChoices = [...existingChoices.characters, ...selectedCharacters.map(character => ({ name: character }))];
+    const jsonData = JSON.stringify({ characters: updatedChoices });
 
-        return fetch(apiUrl, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/vnd.github.v3+json',
-          },
-          body: JSON.stringify({
-            message: 'Update character choices',
-            content: btoa(jsonData),
-            sha: data.sha,
-            branch: 'gh-pages-no-rebuild',
-          }),
-        });
-      })
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.error('Error:', error));
-    }
+    return fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github.v3+json',
+      },
+      body: JSON.stringify({
+        message: 'Update character choices',
+        content: btoa(jsonData),
+        sha: data.sha,
+        branch: 'gh-pages-no-rebuild',
+      }),
+    });
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Choices saved successfully:', data);
+    // Update any UI or perform additional actions as needed
+  })
+  .catch(error => console.error('Error:', error));
+}
+
 
     window.onload = createCharacterBoxes;
   </script>
