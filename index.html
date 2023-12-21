@@ -153,9 +153,9 @@
     }
 
     function saveChoices() {
-      const apiUrl = 'https://github.com/WhoWouldYouChoose/whowouldyouchoose.github.com/contents/choices.json';
-      const token = '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';
-
+      const apiUrl = 'https://api.github.com/repos/your-username/your-repo/contents/choices.json';
+      const token = 'your-access-token';
+    
       fetch(apiUrl, {
         method: 'GET',
         headers: {
@@ -166,9 +166,9 @@
       .then(response => response.json())
       .then(data => {
         const existingChoices = data.content ? JSON.parse(atob(data.content)) : [];
-        existingChoices.push(...selectedCharacters);
-        const jsonData = JSON.stringify(existingChoices);
-
+        const updatedChoices = [...existingChoices, ...selectedCharacters];
+        const jsonData = JSON.stringify(updatedChoices);
+    
         fetch(apiUrl, {
           method: 'PUT',
           headers: {
@@ -189,6 +189,7 @@
       })
       .catch(error => console.error('Error:', error));
     }
+
 
     window.onload = createCharacterBoxes;
   </script>
