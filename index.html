@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,7 +32,6 @@
     }
   </style>
 </head>
-
 <body>
 
   <h1>Morale Game</h1>
@@ -84,6 +82,8 @@
 
         characterStatistics[character.name] = {
           chosenWith: [],
+          job: character.job,
+          farmingKnowledge: character.farmingKnowledge,
         };
 
         const characterOption = document.createElement('option');
@@ -143,84 +143,50 @@
       return selectedCharacters.includes(char1) && selectedCharacters.includes(char2);
     }
 
+    async function displayCharacterStats() {
+      const selectedCharacter = document.getElementById('characterSelector').value;
+      const characterStatsList = document.getElementById('characterStatsList');
+
+      if (selectedCharacter) {
+        const percentages = calculatePercentages();
+        const selectedCharacterPercentages = getChosenWith(selectedCharacter).map(char => {
+          return `${char} (${percentages[char]}%)`;
+        });
+
+        if (selectedCharacterPercentages.length > 0) {
+          const jobInfo = characterStatistics[selectedCharacter].job ? `<br>Job: ${characterStatistics[selectedCharacter].job}` : '';
+          const farmingKnowledgeInfo = characterStatistics[selectedCharacter].farmingKnowledge ? `<br>Farming Knowledge: ${characterStatistics[selectedCharacter].farmingKnowledge}` : '';
+          characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} chosen with: ${selectedCharacterPercentages.join(', ')}${jobInfo}${farmingKnowledgeInfo}</li>`;
+        } else {
+          characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} has not been chosen with anyone.</li>`;
+        }
+      } else {
+        characterStatsList.innerHTML = '';
+        updateCharacterStatistics();
+      }
+    }
+
     function calculatePercentages() {
-  const percentages = {};
-  const totalChoices = selectedCharacters.length;
+      const percentages = {};
+      const totalChoices = selectedCharacters.length;
 
-  for (const character in characterStatistics) {
-    if (characterStatistics.hasOwnProperty(character)) {
-      const chosenWithCount = getChosenWith(character).length;
-      percentages[character] = totalChoices === 0 ? 0 : ((chosenWithCount / totalChoices) * 100).toFixed(2);
+      for (const character in characterStatistics) {
+        if (characterStatistics.hasOwnProperty(character)) {
+          const chosenWithCount = getChosenWith(character).length;
+          percentages[character] = totalChoices === 0 ? 0 : ((chosenWithCount / totalChoices) * 100).toFixed(2);
+        }
+      }
+
+      return percentages;
     }
-  }
-
-  return percentages;
-}
-
-async function displayCharacterStats() {
-  const selectedCharacter = document.getElementById('characterSelector').value;
-  const characterStatsList = document.getElementById('characterStatsList');
-
-  if (selectedCharacter) {
-    const percentages = calculatePercentages();
-    const selectedCharacterPercentages = getChosenWith(selectedCharacter).map(char => {
-      return `${char} (${percentages[char]}%)`;
-    });
-
-    if (selectedCharacterPercentages.length > 0) {
-      const jobInfo = characterStatistics[selectedCharacter].job ? `Job: ${characterStatistics[selectedCharacter].job}` : '';
-      const farmingKnowledgeInfo = characterStatistics[selectedCharacter].farmingKnowledge ? `Farming Knowledge: ${characterStatistics[selectedCharacter].farmingKnowledge}` : '';
-      characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} chosen with: ${selectedCharacterPercentages.join(', ')} ${jobInfo} ${farmingKnowledgeInfo}</li>`;
-    } else {
-      characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} has not been chosen with anyone.</li>`;
-    }
-  } else {
-    characterStatsList.innerHTML = '';
-    updateCharacterStatistics();
-  }
-}
-
 
     function saveChoices() {
-      const apiUrl = 'https://api.github.com/repos/WhoWouldYouChoose/whowouldyouchoose.github.com/contents/choices.json';
-      const token = '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';
-
-      fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/vnd.github.v3+json',
-        },
-      })
-        .then(response => response.json())
-        .then(data => {
-          const existingChoices = data.content ? JSON.parse(atob(data.content)) : { characters: [] };
-          const updatedChoices = [...existingChoices.characters, ...selectedCharacters.map(character => ({ name: character }))];
-          const jsonData = JSON.stringify({ characters: updatedChoices });
-
-          return fetch(apiUrl, {
-            method: 'PUT',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-              'Accept': 'application/vnd.github.v3+json',
-            },
-            body: JSON.stringify({
-              message: 'Update character choices',
-              content: btoa(jsonData),
-              sha: data.sha,
-              branch: 'gh-pages-no-rebuild',
-            }),
-          });
-        })
-        .then(response => response.json())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error:', error));
+      // Use your InfinityFree database or another backend service to save choices
+      console.log('Choices Saved:', selectedCharacters);
     }
 
     window.onload = createCharacterBoxes;
   </script>
 
 </body>
-
 </html>
