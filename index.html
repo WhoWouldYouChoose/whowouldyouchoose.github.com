@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Morale Game</title>
+  <style>
+    .character {
+      display: inline-block;
+      margin: 10px;
+      padding: 10px;
+      border: 2px solid black;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .selected {
+      border-color: green;
+    }
+
+    #statistics {
+      margin-top: 20px;
+    }
+
+    #characterStatsList {
+      list-style: none;
+      padding: 0;
+    }
+
+    .characterStatItem {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Morale Game</h1>
+
+  <div id="characterList">
+    <!-- Character boxes will be added dynamically here -->
+  </div>
+
+  <button onclick="saveChoices()">Save Choices</button>
+
+  <div id="statistics">
+    <h2>Character Statistics</h2>
+
+    <!-- Character Selector Dropdown -->
+    <label for="characterSelector">Select a character:</label>
+    <select id="characterSelector" onchange="displayCharacterStats()">
+      <option value="">Select a character</option>
+      <!-- Options will be added dynamically here -->
+    </select>
+
+    <ul id="characterStatsList">
+      <!-- Statistics will be displayed here -->
+    </ul>
+  </div>
+
+  <script>
+    async function fetchCharacters() {
+      const response = await fetch('characters.json');
+      const data = await response.json();
+      return data.characters || [];
+    }
+
+    const selectedCharacters = [];
+    const characterStatistics = {};
+
+    async function createCharacterBoxes() {
+      const characterList = document.getElementById('characterList');
+      const characters = (await fetchCharacters()).sort();
+
+      characters.forEach(character => {
+        const characterBox = document.createElement('div');
+        characterBox.classList.add('character');
+        characterBox.textContent = character;
+
+        characterBox.addEventListener('click', () => toggleSelection(characterBox, character));
+
+        characterList.appendChild(characterBox);
+
+        characterStatistics[character] = {
+          chosenWith: [],
+        };
+
+        const characterOption = document.createElement('option');
+        characterOption.value = character;
+        characterOption.textContent = character;
+        document.getElementById('characterSelector').appendChild(characterOption);
+      });
+    }
+
+    function toggleSelection(characterBox, character) {
+      if (selectedCharacters.includes(character)) {
+        const index = selectedCharacters.indexOf(character);
+        selectedCharacters.splice(index, 1);
+      } else {
+        selectedCharacters.push(character);
+      }
+
+      characterBox.classList.toggle('selected');
+      updateCharacterStatistics();
+    }
+
+    function updateCharacterStatistics() {
+      const characterStatsList = document.getElementById('characterStatsList');
+      characterStatsList.innerHTML = '';
+
+      for (const character in characterStatistics) {
+        if (characterStatistics.hasOwnProperty(character)) {
+          const statsItem = document.createElement('li');
+          statsItem.classList.add('characterStatItem');
+          statsItem.textContent = `${character} chosen with: ${getChosenWith(character).join(', ')}`;
+          characterStatsList.appendChild(statsItem);
+        }
+      }
+
+      updateCharacterSelectorOptions();
+    }
+
+    function updateCharacterSelectorOptions() {
+      const characterSelector = document.getElementById('characterSelector');
+      characterSelector.innerHTML = '<option value="">Select a character</option>';
+
+      const sortedCharacters = Object.keys(characterStatistics).sort();
+
+      for (const character of sortedCharacters) {
+        const characterOption = document.createElement('option');
+        characterOption.value = character;
+        characterOption.textContent = character;
+        characterSelector.appendChild(characterOption);
+      }
+    }
+
+    function getChosenWith(character) {
+      return selectedCharacters.filter(char => char !== character && isChosenTogether(char, character));
+    }
+
+    function isChosenTogether(char1, char2) {
+      return selectedCharacters.includes(char1) && selectedCharacters.includes(char2);
+    }
+
+    function displayCharacterStats() {
+      const selectedCharacter = document.getElementById('characterSelector').value;
+      const characterStatsList = document.getElementById('characterStatsList');
+
+      if (selectedCharacter) {
+        characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} chosen with: ${getChosenWith(selectedCharacter).join(', ')}</li>`;
+      } else {
+        updateCharacterStatistics();
+      }
+    }
+
+    function saveChoices() {
+      const apiUrl = 'https://github.com/WhoWouldYouChoose/whowouldyouchoose.github.com/contents/choices.json';
+      const token = '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';
+
+      fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        const existingChoices = data.content ? JSON.parse(atob(data.content)) : [];
+        existingChoices.push(...selectedCharacters);
+        const jsonData = JSON.stringify(existingChoices);
+
+        fetch(apiUrl, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json',
+          },
+          body: JSON.stringify({
+            message: 'Update character choices',
+            content: btoa(jsonData),
+            sha: data.sha,
+            branch: 'gh-pages-no-rebuild',
+          }),
+        })
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error:', error));
+      })
+      .catch(error => console.error('Error:', error));
+    }
+
+    window.onload = createCharacterBoxes;
+  </script>
+
+</body>
+</html>
