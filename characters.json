@@ -1,0 +1,8 @@
+{
+  "characters": [
+    {"name": "Alice", "gender": "female", "age": 28, "job": "software developer", "attribute": "compassionate"},
+    {"name": "Bob", "gender": "male", "age": 35, "job": "teacher", "attribute": "patient"},
+    {"name": "Charlie", "gender": "male", "age": 45, "job": "doctor", "attribute": "empathetic"},
+    {"name": "Zara", "gender": "female", "age": 32, "job": "graphic designer", "attribute": "creative"}
+  ]
+}
