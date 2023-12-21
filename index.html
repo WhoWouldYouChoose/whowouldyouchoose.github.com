@@ -142,37 +142,39 @@
     }
 
     function calculatePercentages() {
-      const percentages = {};
-      const totalChoices = selectedCharacters.length;
+  const percentages = {};
+  const totalChoices = selectedCharacters.length;
 
-      for (const character in characterStatistics) {
-        if (characterStatistics.hasOwnProperty(character)) {
-          const chosenWithCount = getChosenWith(character).length;
-          percentages[character] = totalChoices === 0 ? 0 : (chosenWithCount / totalChoices * 100).toFixed(2);
-        }
-      }
-
-      return percentages;
+  for (const character in characterStatistics) {
+    if (characterStatistics.hasOwnProperty(character)) {
+      const chosenWithCount = getChosenWith(character).length;
+      percentages[character] = totalChoices === 0 ? 0 : (chosenWithCount / totalChoices * 100);
     }
+  }
+
+  return percentages;
+}
+
 
     function displayCharacterStats() {
-      const selectedCharacter = document.getElementById('characterSelector').value;
-      const characterStatsList = document.getElementById('characterStatsList');
+  const selectedCharacter = document.getElementById('characterSelector').value;
+  const characterStatsList = document.getElementById('characterStatsList');
 
-      if (selectedCharacter) {
-        const percentages = calculatePercentages();
-        const selectedCharacterPercentages = getChosenWith(selectedCharacter).map(char => `${char} (${percentages[char].toFixed(2)}%)`);
-        
-        if (selectedCharacterPercentages.length > 0) {
-          characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} chosen with: ${selectedCharacterPercentages.join(', ')}</li>`;
-        } else {
-          characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} has not been chosen with anyone.</li>`;
-        }
-      } else {
-        characterStatsList.innerHTML = '';
-        updateCharacterStatistics();
-      }
+  if (selectedCharacter) {
+    const percentages = calculatePercentages();
+    const selectedCharacterPercentages = getChosenWith(selectedCharacter).map(char => `${char} (${percentages[char].toFixed(2)}%)`);
+
+    if (selectedCharacterPercentages.length > 0) {
+      characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} chosen with: ${selectedCharacterPercentages.join(', ')}</li>`;
+    } else {
+      characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} has not been chosen with anyone.</li>`;
     }
+  } else {
+    characterStatsList.innerHTML = '';
+    updateCharacterStatistics();
+  }
+}
+
 
     function saveChoices() {
   const apiUrl = 'https://api.github.com/repos/WhoWouldYouChoose/whowouldyouchoose.github.com/contents/choices.json';
