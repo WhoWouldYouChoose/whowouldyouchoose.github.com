@@ -162,14 +162,19 @@ function displayCharacterStats() {
 
   if (selectedCharacter) {
     const percentages = calculatePercentages();
-    const percentage = percentages[selectedCharacter].toFixed(2);
-
-    characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} chosen with: ${getChosenWith(selectedCharacter).join(', ')} (${percentage}% of total choices)</li>`;
+    const selectedCharacterPercentages = getChosenWith(selectedCharacter).map(char => `${char} (${percentages[char].toFixed(2)}%)`);
+    
+    if (selectedCharacterPercentages.length > 0) {
+      characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} chosen with: ${selectedCharacterPercentages.join(', ')}</li>`;
+    } else {
+      characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} has not been chosen with anyone.</li>`;
+    }
   } else {
     characterStatsList.innerHTML = '';
     updateCharacterStatistics();
   }
 }
+
 
 
     function saveChoices() {
@@ -183,15 +188,10 @@ function displayCharacterStats() {
       'Accept': 'application/vnd.github.v3+json',
     },
   })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.statusText}`);
-    }
-    return response.json();
-  })
+  .then(response => response.json())
   .then(data => {
-    const existingChoices = data.content ? JSON.parse(atob(data.content)) : [];
-    const updatedChoices = [...existingChoices, ...selectedCharacters.map(character => ({ name: character }))];
+    const existingChoices = data.content ? JSON.parse(atob(data.content)) : { characters: [] };
+    const updatedChoices = [...existingChoices.characters, ...selectedCharacters.map(character => ({ name: character }))];
     const jsonData = JSON.stringify({ characters: updatedChoices });
 
     return fetch(apiUrl, {
@@ -209,15 +209,11 @@ function displayCharacterStats() {
       }),
     });
   })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.statusText}`);
-    }
-    return response.json();
-  })
+  .then(response => response.json())
   .then(data => console.log(data))
   .catch(error => console.error('Error:', error));
 }
+
 
 
     window.onload = createCharacterBoxes;
