@@ -3,6 +3,17 @@
     {"name": "Alice", "gender": "female", "age": 28, "job": "software developer", "attribute": "compassionate"},
     {"name": "Bob", "gender": "male", "age": 35, "job": "teacher", "attribute": "patient"},
     {"name": "Charlie", "gender": "male", "age": 45, "job": "doctor", "attribute": "empathetic"},
-    {"name": "Zara", "gender": "female", "age": 32, "job": "graphic designer", "attribute": "creative"}
+    {"name": "Zara", "gender": "female", "age": 32, "job": "graphic designer", "attribute": "creative"},
+    {"name": "Eva", "gender": "female", "age": 30, "job": "architect", "attribute": "creative"},
+    {"name": "Daniel", "gender": "male", "age": 40, "job": "engineer", "attribute": "analytical"},
+    {"name": "Sophia", "gender": "female", "age": 28, "job": "marketing specialist", "attribute": "charismatic"},
+    {"name": "Liam", "gender": "male", "age": 32, "job": "chef", "attribute": "culinary skills"},
+    {"name": "Olivia", "gender": "female", "age": 35, "job": "psychologist", "attribute": "empathetic"},
+    {"name": "Mason", "gender": "male", "age": 25, "job": "graphic designer", "attribute": "artistic"},
+    {"name": "Ava", "gender": "female", "age": 45, "job": "business consultant", "attribute": "strategic"},
+    {"name": "Jackson", "gender": "male", "age": 38, "job": "lawyer", "attribute": "logical"},
+    {"name": "Isabella", "gender": "female", "age": 27, "job": "software developer", "attribute": "innovative"},
+    {"name": "Ethan", "gender": "male", "age": 33, "job": "teacher", "attribute": "patient"}
+  ]
   ]
 }
