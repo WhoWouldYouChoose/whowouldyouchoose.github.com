@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,6 +33,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <h1>Morale Game</h1>
@@ -69,12 +71,9 @@
 
     async function createCharacterBoxes() {
       const characterList = document.getElementById('characterList');
-      const characters = await fetchCharacters();
+      const characters = (await fetchCharacters()).sort();
 
-      // Select random 12 characters
-      const randomCharacters = getRandomCharacters(characters, 12);
-
-      randomCharacters.forEach(character => {
+      characters.forEach(character => {
         const characterBox = document.createElement('div');
         characterBox.classList.add('character');
         characterBox.textContent = character.name; // Display the character's name
@@ -92,11 +91,6 @@
         characterOption.textContent = character.name;
         document.getElementById('characterSelector').appendChild(characterOption);
       });
-    }
-
-    function getRandomCharacters(characters, count) {
-      const shuffledCharacters = characters.sort(() => 0.5 - Math.random());
-      return shuffledCharacters.slice(0, count);
     }
 
     function toggleSelection(characterBox, character) {
@@ -169,9 +163,10 @@
 
       if (selectedCharacter) {
         const percentages = calculatePercentages();
-        const selectedCharacterPercentages = getChosenWith(selectedCharacter).map(
-          char => `${char} (${percentages[char].toFixed(2)}%)`
-        );
+        const selectedCharacterPercentages = getChosenWith(selectedCharacter).map(char => {
+          const percentage = percentages[char] || 0; // Handle case where not chosen with anyone
+          return `${char} (${percentage.toFixed(2)}%)`;
+        });
 
         if (selectedCharacterPercentages.length > 0) {
           characterStatsList.innerHTML = `<li class="characterStatItem">${selectedCharacter} chosen with: ${selectedCharacterPercentages.join(', ')}</li>`;
@@ -186,7 +181,7 @@
 
     function saveChoices() {
       const apiUrl = 'https://api.github.com/repos/WhoWouldYouChoose/whowouldyouchoose.github.com/contents/choices.json';
-      const token = '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';
+      const token = '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';
 
       fetch(apiUrl, {
         method: 'GET',
@@ -195,34 +190,35 @@
           'Accept': 'application/vnd.github.v3+json',
         },
       })
-      .then(response => response.json())
-      .then(data => {
-        const existingChoices = data.content ? JSON.parse(atob(data.content)) : { characters: [] };
-        const updatedChoices = [...existingChoices.characters, ...selectedCharacters.map(character => ({ name: character }))];
-        const jsonData = JSON.stringify({ characters: updatedChoices });
+        .then(response => response.json())
+        .then(data => {
+          const existingChoices = data.content ? JSON.parse(atob(data.content)) : { characters: [] };
+          const updatedChoices = [...existingChoices.characters, ...selectedCharacters.map(character => ({ name: character }))];
+          const jsonData = JSON.stringify({ characters: updatedChoices });
 
-        return fetch(apiUrl, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/vnd.github.v3+json',
-          },
-          body: JSON.stringify({
-            message: 'Update character choices',
-            content: btoa(jsonData),
-            sha: data.sha,
-            branch: 'gh-pages-no-rebuild',
-          }),
-        });
-      })
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.error('Error:', error));
+          return fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/vnd.github.v3+json',
+            },
+            body: JSON.stringify({
+              message: 'Update character choices',
+              content: btoa(jsonData),
+              sha: data.sha,
+              branch: 'gh-pages-no-rebuild',
+            }),
+          });
+        })
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error:', error));
     }
 
     window.onload = createCharacterBoxes;
   </script>
 
 </body>
+
 </html>
