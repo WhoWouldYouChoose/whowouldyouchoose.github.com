@@ -68,20 +68,20 @@
     const characterStatistics = {};
 
     async function createCharacterBoxes() {
-      const characterList = document.getElementById('characterList');
-      const characters = (await fetchCharacters()).sort();
-    
-      characters.forEach(character => {
-        const characterBox = document.createElement('div');
-        characterBox.classList.add('character');
-        characterBox.textContent = character.name; // Display the character's name
-    
-        characterBox.addEventListener('click', () => toggleSelection(characterBox, character.name));
-    
-        characterList.appendChild(characterBox);
-    
-        characterStatistics[character.name] = {
-          chosenWith: [],
+  const characterList = document.getElementById('characterList');
+  const characters = (await fetchCharacters()).sort();
+
+  characters.forEach(character => {
+    const characterBox = document.createElement('div');
+    characterBox.classList.add('character');
+    characterBox.textContent = character.name; // Display the character's name
+
+    characterBox.addEventListener('click', () => toggleSelection(characterBox, character.name));
+
+    characterList.appendChild(characterBox);
+
+    characterStatistics[character.name] = {
+      chosenWith: [],
     };
 
     const characterOption = document.createElement('option');
@@ -91,20 +91,6 @@
   });
 }
 
-    const characterOption = document.createElement('option');
-    characterOption.value = character;
-    characterOption.textContent = character;
-    document.getElementById('characterSelector').appendChild(characterOption);
-  });
-}
-
-
-        const characterOption = document.createElement('option');
-        characterOption.value = character;
-        characterOption.textContent = character;
-        document.getElementById('characterSelector').appendChild(characterOption);
-      });
-    }
 
     function toggleSelection(characterBox, character) {
       if (selectedCharacters.includes(character)) {
