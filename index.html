@@ -149,12 +149,13 @@
   for (const character in characterStatistics) {
     if (characterStatistics.hasOwnProperty(character)) {
       const chosenWithCount = getChosenWith(character).length;
-      percentages[character] = chosenWithCount / totalChoices * 100 || 0;
+      percentages[character] = totalChoices === 0 ? 0 : (chosenWithCount / totalChoices * 100).toFixed(2);
     }
   }
 
   return percentages;
 }
+
 
 function displayCharacterStats() {
   const selectedCharacter = document.getElementById('characterSelector').value;
