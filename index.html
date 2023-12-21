@@ -74,15 +74,22 @@
       characters.forEach(character => {
         const characterBox = document.createElement('div');
         characterBox.classList.add('character');
-        characterBox.textContent = character;
+        characterBox.textContent = character.name; // Display the character's name
     
-        characterBox.addEventListener('click', () => toggleSelection(characterBox, character));
+        characterBox.addEventListener('click', () => toggleSelection(characterBox, character.name));
     
         characterList.appendChild(characterBox);
     
-        characterStatistics[character] = {
+        characterStatistics[character.name] = {
           chosenWith: [],
-        };
+    };
+
+    const characterOption = document.createElement('option');
+    characterOption.value = character.name;
+    characterOption.textContent = character.name;
+    document.getElementById('characterSelector').appendChild(characterOption);
+  });
+}
 
     const characterOption = document.createElement('option');
     characterOption.value = character;
